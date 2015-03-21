@@ -1,0 +1,27 @@
+name: CreativeControl
+main: no.atc.floyd.bukkit.cc.CreativeControl
+version: 1.48
+website: http://minecraft.atc.no/plugins
+author: FloydATC
+depend: [TelePlugin]
+description: >
+        Creative mode inventory/container control
+commands:
+  loadinventory:
+    description: Load inventory file manually
+    usage: /<command> [<player>] [CREATIVE|SURVIVAL] [<from-player>]
+    permission: creativecontrol.load
+  listinventory:
+    description: Show inventory file of a player (console only)
+    usage: /<command> [<player>]
+    permission: creativecontrol.list
+  saveinventory:
+    description: Save inventory file manually
+    usage: /<command> [<player>] [<player2>] ... [<playerN>]
+    permission: creativecontrol.save
+  gm:
+    description: Change own game mode
+    usage: /<command> 0|1 [<player>]
+    permission: creativecontrol.gm
+
+
