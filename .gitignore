@@ -16,3 +16,4 @@ lib/
 
 # Markdown previews
 .*.md.html
+/target/

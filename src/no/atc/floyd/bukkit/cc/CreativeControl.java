@@ -780,12 +780,16 @@ public class CreativeControl extends JavaPlugin implements Listener {
     		//str = str.concat(" enchantment=>"+enchantment.getId()+":"+level);
     		str = str.concat(" enchantmentname=>"+enchantment.getName()+":"+level);
     	}
+    	if (stack.getItemMeta().hasDisplayName()) {
+    	  str = str.concat(" name=>"+ascii2hex(stack.getItemMeta().getDisplayName()));
+    	}
 		getLogger().fine("Serialized stack "+stack+" as: "+str);
     	return str;
     }
     
     private ItemStack string_to_itemstack(String string) {
 		Map<String, Object> map = new HashMap<String, Object>();
+		String StackName = null;
 		
 		// Recreate basic ItemStack
 		String[] pairs = string.split(" ");
@@ -795,6 +799,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
 			//if (key_value[0].equalsIgnoreCase("data")) map.put("data", Byte.parseByte(key_value[1]));
 			if (key_value[0].equalsIgnoreCase("durability")) map.put("durability", Short.parseShort(key_value[1]));
 			if (key_value[0].equalsIgnoreCase("amount")) map.put("amount", Integer.parseInt(key_value[1]));
+			if (key_value[0].equalsIgnoreCase("name")) StackName = hex2ascii(key_value[1]);
 		}
 
 		getLogger().fine("Recreate stack using map: "+map);
@@ -802,7 +807,9 @@ public class CreativeControl extends JavaPlugin implements Listener {
 		//MaterialData md = stack.getData();
 		//if (md != null) md.setData((Byte) map.get("data"));
 		stack.setDurability((Short) map.get("durability"));
-    	
+    	if (StackName != null) {
+    		stack.getItemMeta().setDisplayName(StackName);
+    	}
     	// Add enchantments
 		for (String pair : pairs) {
 			String[] key_value = pair.split("=>");
@@ -928,6 +935,26 @@ public class CreativeControl extends JavaPlugin implements Listener {
 		return false;
 	}
 	
+	private static String ascii2hex(String ascii) {
+		char[] chars = ascii.toCharArray();
+		StringBuffer hex = new StringBuffer();
+		for (int i = 0; i < chars.length; i++)
+	    {
+	        hex.append(Integer.toHexString((int) chars[i]));
+	    }
+	    return hex.toString();
+	}
+
+	private static String hex2ascii(String hex)
+	{
+	    StringBuilder output = new StringBuilder("");
+	    for (int i = 0; i < hex.length(); i += 2)
+	    {
+	        String str = hex.substring(i, i + 2);
+	        output.append((char) Integer.parseInt(str, 16));
+	    }
+	    return output.toString();
+	}
 }
 
 
