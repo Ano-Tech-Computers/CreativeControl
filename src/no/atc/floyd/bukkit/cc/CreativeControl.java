@@ -44,6 +44,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
 
@@ -780,8 +781,14 @@ public class CreativeControl extends JavaPlugin implements Listener {
     		//str = str.concat(" enchantment=>"+enchantment.getId()+":"+level);
     		str = str.concat(" enchantmentname=>"+enchantment.getName()+":"+level);
     	}
-    	if (stack.getItemMeta().hasDisplayName()) {
-    	  str = str.concat(" name=>"+ascii2hex(stack.getItemMeta().getDisplayName()));
+    	if (stack.getItemMeta() != null && stack.getItemMeta().hasDisplayName()) {
+    		try {
+    	    	str = str.concat(" name=>"+ascii2hex(stack.getItemMeta().getDisplayName()));
+    		}
+	    	catch (Exception e) {
+	    		getLogger().warning("Could serialize name of "+stack.getType().name());
+	    		e.printStackTrace();
+	    	}
     	}
 		getLogger().fine("Serialized stack "+stack+" as: "+str);
     	return str;
@@ -808,7 +815,13 @@ public class CreativeControl extends JavaPlugin implements Listener {
 		//if (md != null) md.setData((Byte) map.get("data"));
 		stack.setDurability((Short) map.get("durability"));
     	if (StackName != null) {
-    		stack.getItemMeta().setDisplayName(StackName);
+    		try {
+    			stack.getItemMeta().setDisplayName(StackName);
+    		}
+	    	catch (Exception e) {
+	    		getLogger().warning("Could not apply name "+StackName+" to "+stack.getType().name());
+	    		e.printStackTrace();
+	    	}
     	}
     	// Add enchantments
 		for (String pair : pairs) {
