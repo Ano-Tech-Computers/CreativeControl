@@ -799,7 +799,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
 			//if (key_value[0].equalsIgnoreCase("data")) map.put("data", Byte.parseByte(key_value[1]));
 			if (key_value[0].equalsIgnoreCase("durability")) map.put("durability", Short.parseShort(key_value[1]));
 			if (key_value[0].equalsIgnoreCase("amount")) map.put("amount", Integer.parseInt(key_value[1]));
-			if (key_value[0].equalsIgnoreCase("name")) StackName = hex2ascii(key_value[1]);
+			if (key_value[0].equalsIgnoreCase("name")) StackName = new String(hex2ascii(key_value[1]));
 		}
 
 		getLogger().fine("Recreate stack using map: "+map);
