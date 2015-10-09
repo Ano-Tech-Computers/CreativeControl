@@ -15,6 +15,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -78,7 +79,10 @@ public class CreativeControl extends JavaPlugin implements Listener {
     private static ConcurrentHashMap<World, Boolean> is_creative = new ConcurrentHashMap<World, Boolean>();  
     private static ConcurrentHashMap<String, GameMode> player_inventory = new ConcurrentHashMap<String, GameMode>();  
     
-    
+	public static final String MSG_PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "CC" + ChatColor.GRAY + "] ";
+	public static final ChatColor COLOR_INFO = ChatColor.AQUA;
+	public static final ChatColor COLOR_WARNING = ChatColor.RED;
+	public static final ChatColor COLOR_NAME = ChatColor.GOLD;
     
     public void onDisable() {
     	// Save all inventories to disk -- important for server restarts etc.
@@ -155,7 +159,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
         if (cmdname.equalsIgnoreCase("gm") && (player == null || player.hasPermission("creativecontrol.gm"))) {
         	if (args.length == 1) {
         		if (player == null) {
-        			respond(player, "�7[�6CC�7] Must specify player");
+        			respond(player, MSG_PREFIX+COLOR_WARNING+"Must specify player");
         			return true;
         		}
         		
@@ -163,12 +167,12 @@ public class CreativeControl extends JavaPlugin implements Listener {
         		if (args[0].equalsIgnoreCase("1")) gm = GameMode.CREATIVE;
         		if (args[0].equalsIgnoreCase("2")) gm = GameMode.SURVIVAL;
         		if (player.getGameMode() == gm) {
-        			respond(player, "�7[�6CC�7] Already in "+gm.name()+" mode");
+        			respond(player, MSG_PREFIX+COLOR_WARNING+"Already in "+gm.name()+" mode");
         		} else {
     		        save_inventory(player, player.getGameMode());
     		        load_inventory(player, gm, "");
         			player.setGameMode(gm);
-        			respond(player, "�7[�6CC�7] Switched to "+gm.name()+" mode");
+        			respond(player, MSG_PREFIX+"Switched to "+gm.name()+" mode");
         			getLogger().info(player.getName()+" manually switched to "+gm.name()+" mode");
         		}
         		return true;
@@ -176,23 +180,23 @@ public class CreativeControl extends JavaPlugin implements Listener {
         	if (args.length == 2 && (player == null || player.hasPermission("creativecontrol.gm.other"))) {
         		Player p = getServer().getPlayer(args[1]);
         		if (p == null) {
-        			respond(player, "�7[�6CC�7] Unknown player '"+args[1]+"'");
+        			respond(player, MSG_PREFIX+COLOR_WARNING+"Unknown player '"+args[1]+"'");
         			return true;
         		} else {
             		GameMode gm = GameMode.SURVIVAL;
             		if (args[0].equalsIgnoreCase("1")) gm = GameMode.CREATIVE;
             		if (args[0].equalsIgnoreCase("2")) gm = GameMode.SURVIVAL;
             		if (p.getGameMode() == gm) {
-            			respond(player, "�7[�6CC�7] "+p.getName()+" is already in "+gm.name()+" mode");
+            			respond(player, MSG_PREFIX+COLOR_NAME+p.getName()+COLOR_INFO+" is already in "+gm.name()+" mode");
             		} else {
         		        save_inventory(player, p.getGameMode());
         		        load_inventory(p, gm, "");
             			p.setGameMode(gm);
             			if (player.equals(p)) {
-                			respond(player, "�7[�6CC�7] Switched to "+gm.name()+" mode");
+                			respond(player, MSG_PREFIX+"Switched to "+gm.name()+" mode");
             			} else {
-            				respond(player, "�7[�6CC�7] "+p.getName()+" switched to "+gm.name()+" mode");
-            				respond(player, "�7[�6CC�7] "+player.getName()+" switched you to "+gm.name()+" mode");
+            				respond(player, MSG_PREFIX+COLOR_NAME+p.getName()+COLOR_INFO+" switched to "+gm.name()+" mode");
+            				respond(p, MSG_PREFIX+COLOR_NAME+player.getName()+COLOR_INFO+" switched you to "+gm.name()+" mode");
             			}
             		    getLogger().info(p.getName()+" switched to "+gm.name()+" mode by "+player.getName());
         		    }
@@ -208,19 +212,19 @@ public class CreativeControl extends JavaPlugin implements Listener {
             		Player p = getServer().getPlayer(pname);
             		if (p != null) {
             			save_inventory(p, p.getGameMode());
-                		respond(player, "�7[�6CC�7] Saved "+pname);
+                		respond(player, MSG_PREFIX+"Saved "+pname);
             		} else {
-                		respond(player, "�7[�6CC�7] Unknown player '"+pname+"'");
+                		respond(player, MSG_PREFIX+COLOR_WARNING+"Unknown player '"+pname+"'");
             		}
             	}
         		return true;
             } else {
             	if (player != null) {
             	    save_inventory(player, player.getGameMode());
-            		respond(player, "�7[�6CC�7] Saved");
+            		respond(player, MSG_PREFIX+"Saved");
             		return true;
             	} else {
-            		respond(player, "�7[�6CC�7] Please specify player name");
+            		respond(player, MSG_PREFIX+COLOR_NAME+"Please specify player name");
             		return false;
             	}
             }
@@ -231,9 +235,9 @@ public class CreativeControl extends JavaPlugin implements Listener {
     				return false;
     			} else {
     				if (load_inventory(player, player.getGameMode(), "")) {
-                		respond(player, "�7[�6CC�7] Loaded");
+                		respond(player, MSG_PREFIX+"Loaded");
     				} else {
-                		respond(player, "�7[�6CC�7] Error loading");
+                		respond(player, MSG_PREFIX+COLOR_WARNING+"Error loading");
     				}
             		return true;
     			}
@@ -243,13 +247,13 @@ public class CreativeControl extends JavaPlugin implements Listener {
     			Player p = getServer().getPlayer(pname);
     			if (p != null) {
     				if (load_inventory(p, p.getGameMode(), "")) {
-    					respond(player, "�7[�6CC�7] Loaded "+pname);
+    					respond(player, MSG_PREFIX+"Loaded "+pname);
     				} else {
-    					respond(player, "�7[�6CC�7] Error loading "+pname);
+    					respond(player, MSG_PREFIX+COLOR_WARNING+"Error loading "+COLOR_NAME+pname);
     				}
     				return true;
     			} else {
-    				respond(player, "�7[�6CC�7] Unknown player '"+pname+"'");
+    				respond(player, MSG_PREFIX+COLOR_WARNING+"Unknown player '"+pname+"'");
     				return true;
     			}
     		}
@@ -257,19 +261,19 @@ public class CreativeControl extends JavaPlugin implements Listener {
     			String pname = args[0];
     			Player p = getServer().getPlayer(pname);
     			if (!args[1].equalsIgnoreCase("CREATIVE") && !args[1].equalsIgnoreCase("SURVIVAL")) {
-    				respond(player, "�7[�6CC�7] Must specify gamemode CREATIVE or SURVIVAL");
+    				respond(player, MSG_PREFIX+COLOR_WARNING+"Must specify gamemode CREATIVE or SURVIVAL");
     				return true;
     			}
     			GameMode gm = GameMode.valueOf(args[1]);
     			if (p != null) {
     				if (load_inventory(p, gm, "")) {
-    					respond(player, "�7[�6CC�7] Loaded "+pname);
+    					respond(player, MSG_PREFIX+"Loaded "+COLOR_NAME+pname);
     				} else {
-    					respond(player, "�7[�6CC�7] Error loading "+pname);
+    					respond(player, MSG_PREFIX+COLOR_WARNING+"Error loading "+pname);
     				}
     				return true;
     			} else {
-    				respond(player, "�7[�6CC�7] Unknown player '"+pname+"'");
+    				respond(player, MSG_PREFIX+COLOR_WARNING+"Unknown player '"+pname+"'");
     				return true;
     			}
     		}
@@ -277,19 +281,19 @@ public class CreativeControl extends JavaPlugin implements Listener {
     			String pname = args[0];
     			Player p = getServer().getPlayer(pname);
     			if (!args[1].equalsIgnoreCase("CREATIVE") && !args[1].equalsIgnoreCase("SURVIVAL")) {
-    				respond(player, "�7[�6CC�7] Must specify gamemode CREATIVE or SURVIVAL");
+    				respond(player, MSG_PREFIX+COLOR_WARNING+"Must specify gamemode CREATIVE or SURVIVAL");
     				return true;
     			}
     			GameMode gm = GameMode.valueOf(args[1]);
     			if (p != null) {
     				if (load_inventory(p, gm, args[2])) {
-    					respond(player, "�7[�6CC�7] Loaded "+args[2]+" as "+pname);
+    					respond(player, MSG_PREFIX+"Loaded "+args[2]+" as "+COLOR_NAME+pname);
     				} else {
-    					respond(player, "�7[�6CC�7] Error loading "+args[2]+" as "+pname);
+    					respond(player, MSG_PREFIX+COLOR_WARNING+"Error loading "+args[2]+" as "+pname);
     				}
     				return true;
     			} else {
-    				respond(player, "�7[�6CC�7] Unknown player '"+pname+"'");
+    				respond(player, MSG_PREFIX+COLOR_WARNING+"Unknown player '"+pname+"'");
     				return true;
     			}
     		}
@@ -300,11 +304,11 @@ public class CreativeControl extends JavaPlugin implements Listener {
     			Player p = getServer().getPlayer(pname);
     			if (p != null) {
     				if (!list_inventory(p, p.getGameMode())) {
-    					respond(player, "�7[�6CC�7] Error listing inventory of "+pname);
+    					respond(player, MSG_PREFIX+COLOR_WARNING+"Error listing inventory of "+pname);
     				}
     				return true;
     			} else {
-    				respond(player, "�7[�6CC�7] Unknown player '"+pname+"'");
+    				respond(player, MSG_PREFIX+COLOR_WARNING+"Unknown player '"+pname+"'");
     				return true;
     			}
     		}
@@ -374,7 +378,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
         GameMode new_mode = event.getNewGameMode();
         if (allow_gm_change(p, old_mode, new_mode)) {
         	getLogger().info("Player '"+p.getName()+"' in world '"+p.getWorld().getName()+"' is changing game mode from "+old_mode.name()+" to "+new_mode.name());
-        	respond(p, "�7[�6CC�7] Entering "+new_mode.name()+" mode");
+        	respond(p, MSG_PREFIX+"Entering "+new_mode.name()+" mode");
         	return;
         } else {
         	getLogger().info("Player '"+p.getName()+"' in world '"+p.getWorld().getName()+"' tried to change game mode from "+old_mode.name()+" to "+new_mode.name());
@@ -392,7 +396,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
     	String to_world = event.getTo().getWorld().getName().toLowerCase();
     	if (!from_world.equals(to_world)) {
             getLogger().info("Player "+player.getName()+" is teleporting from world '"+from_world+"' to '"+to_world+"'");
-        	respond(player, "�7[�6CC�7] Teleporting to world '"+w.getName()+"'");
+        	respond(player, MSG_PREFIX+"Teleporting to world '"+w.getName()+"'");
             update_gamemode(player, w);
     	}
     }    
@@ -438,22 +442,22 @@ public class CreativeControl extends JavaPlugin implements Listener {
     	if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
     		if (b.getType() == Material.ENDER_CHEST) {
 	    		getLogger().warning(p.getName()+" tried to use ENDER CHEST in CREATIVE mode");
-	    		respond(p, "�7[�6CC�7] Not permitted in CREATIVE mode");
+	    		respond(p, MSG_PREFIX+COLOR_WARNING+"Not permitted in CREATIVE mode");
 				event.setCancelled(true);
     		}
     		if (b.getType() == Material.ENCHANTMENT_TABLE) {
 	    		getLogger().warning(p.getName()+" tried to use ENCHANTMENT TABLE in CREATIVE mode");
-	    		respond(p, "�7[�6CC�7] Not permitted in CREATIVE mode");
+	    		respond(p, MSG_PREFIX+COLOR_WARNING+"Not permitted in CREATIVE mode");
 				event.setCancelled(true);
     		}
     		if (b.getType() == Material.ANVIL) {
 	    		getLogger().warning(p.getName()+" tried to use ANVIL in CREATIVE mode");
-	    		respond(p, "�7[�6CC�7] Not permitted in CREATIVE mode");
+	    		respond(p, MSG_PREFIX+COLOR_WARNING+"Not permitted in CREATIVE mode");
 				event.setCancelled(true);
     		}
     		if (b.getType() == Material.BREWING_STAND) {
 	    		getLogger().warning(p.getName()+" tried to use BREWING STAND in CREATIVE mode");
-	    		respond(p, "�7[�6CC�7] Not permitted in CREATIVE mode");
+	    		respond(p, MSG_PREFIX+COLOR_WARNING+"Not permitted in CREATIVE mode");
 				event.setCancelled(true);
     		}
 //    		if (b.getType() == Material.FURNACE) {
@@ -510,28 +514,28 @@ public class CreativeControl extends JavaPlugin implements Listener {
     	if (entity instanceof Horse) {
     		Horse h = (Horse) entity;
     		getLogger().info(p.getName()+" tried to interact with "+h.getVariant());
-    		respond(p, "�7[�6CC�7] Not permitted in CREATIVE mode");
+    		respond(p, MSG_PREFIX+COLOR_WARNING+"Not permitted in CREATIVE mode");
 			event.setCancelled(true);
 			return;
     	}
     	if (entity instanceof Egg) {
     		Egg e = (Egg) entity;
     		getLogger().info(p.getName()+" tried to interact with "+e.toString());
-    		respond(p, "�7[�6CC�7] Not permitted in CREATIVE mode");
+    		respond(p, MSG_PREFIX+COLOR_WARNING+"Not permitted in CREATIVE mode");
 			event.setCancelled(true);
 			return;
     	}
     	if (entity instanceof ExperienceOrb) {
     		ExperienceOrb e = (ExperienceOrb) entity;
     		getLogger().info(p.getName()+" tried to interact with "+e.toString());
-    		respond(p, "�7[�6CC�7] Not permitted in CREATIVE mode");    		
+    		respond(p, MSG_PREFIX+COLOR_WARNING+"Not permitted in CREATIVE mode");    		
 			event.setCancelled(true);
 			return;
     	}
     	if (entity instanceof ThrownPotion) {
     		ThrownPotion t = (ThrownPotion) entity;
     		getLogger().info(p.getName()+" tried to interact with "+t.toString());
-    		respond(p, "�7[�6CC�7] Not permitted in CREATIVE mode");    		
+    		respond(p, MSG_PREFIX+COLOR_WARNING+"Not permitted in CREATIVE mode");    		
 			event.setCancelled(true);
 			return;
     	}
@@ -553,7 +557,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
     	Player p = event.getPlayer();
     	if (p.getGameMode() == GameMode.CREATIVE) {
     		getLogger().warning(p.getName()+" tried to consume "+event.getItem().getType().name()+" in CREATIVE mode");
-    		respond(p, "�7[�6CC�7] Not permitted in CREATIVE mode");
+    		respond(p, MSG_PREFIX+COLOR_WARNING+"Not permitted in CREATIVE mode");
 			event.setCancelled(true);
     	}
     }
@@ -564,7 +568,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
     	Player p = event.getPlayer();
     	if (p.getGameMode() == GameMode.CREATIVE) {
     		getLogger().warning(p.getName()+" tried to throw "+event.getItemDrop().getItemStack().getType()+" in CREATIVE mode");
-    		respond(p, "�7[�6CC�7] Not permitted in CREATIVE mode");
+    		respond(p, MSG_PREFIX+COLOR_WARNING+"Not permitted in CREATIVE mode");
 			event.setCancelled(true);
     	}
     }
@@ -582,7 +586,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
     		gm = player_inventory.get(p.getName());
     		if (gm != GameMode.CREATIVE) {
     			event.setCancelled(true);
-        		respond(p, "�7[�6CC�7] Internal error: Wrong inventory loaded, please report this incident");
+        		respond(p, MSG_PREFIX+COLOR_WARNING+"Internal error: Wrong inventory loaded, please report this incident");
         		getLogger().warning(p.getName()+" is in CREATIVE mode but appears to have incorrect inventory loaded");
         		return;
     		}
@@ -591,7 +595,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
     			// Ban certain items in creative mode
     			if (event.getAction() == InventoryAction.PLACE_ALL || event.getAction() == InventoryAction.PLACE_SOME || event.getAction() == InventoryAction.PLACE_ONE) {
     				if (event.getCursor() != null && isBanned(event.getCursor().getType())) {
-    	        		respond(p, "�7[�6CC�7] Not permitted in CREATIVE mode");
+    	        		respond(p, MSG_PREFIX+COLOR_WARNING+"Not permitted in CREATIVE mode");
     	        		getLogger().warning(p.getName()+" in CREATIVE mode tried to equip banned item "+event.getCursor().getType().name());
     	        		event.setCancelled(true);
     	        		return;
