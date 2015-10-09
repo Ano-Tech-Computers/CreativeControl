@@ -20,6 +20,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -31,15 +32,19 @@ import org.bukkit.event.entity.ExpBottleEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryCreativeEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerInventoryEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
@@ -310,7 +315,8 @@ public class CreativeControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerChangedWorldEvent( PlayerChangedWorldEvent event ) {
     	Player p = event.getPlayer();
-    	World w = p.getWorld();
+    	Location loc = p.getLocation();
+    	World w = loc.getWorld();
     	getLogger().info("Player "+p.getName()+" changed to world '"+w.getName()+"'");
     	if (is_creative.get(w) != (p.getGameMode() == GameMode.CREATIVE)) {
     		getLogger().info("Player "+p.getName()+" has incorrect game mode");
@@ -334,6 +340,24 @@ public class CreativeControl extends JavaPlugin implements Listener {
         }
         //update_gamemode(player, player.getWorld());
     	return true;
+    }
+
+    @EventHandler
+    public void onInventoryOpenEvent( InventoryOpenEvent event ) {
+    	Player p = (Player) event.getPlayer();
+    	Location loc = p.getLocation();
+    	World w = loc.getWorld();
+    	// Sanity check -- does the player gamemode match the world gamemode?
+    	verify_gamemode(p, w, event);
+    }
+
+    @EventHandler
+    public void onPlayerMoveEvent( PlayerMoveEvent event ) {
+    	Player p = (Player) event.getPlayer();
+    	Location loc = p.getLocation();
+    	World w = loc.getWorld();
+    	// Sanity check -- does the player gamemode match the world gamemode?
+    	verify_gamemode(p, w, event);
     }
 
     @EventHandler
@@ -404,7 +428,11 @@ public class CreativeControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerInteract( PlayerInteractEvent event	) {
     	Player p = event.getPlayer();
-    	if (p.getGameMode() != GameMode.CREATIVE) return;
+    	World w = p.getWorld();
+    	// Sanity check -- does the player gamemode match the world gamemode?
+    	verify_gamemode(p, w, event);
+
+        if (p.getGameMode() != GameMode.CREATIVE) return;
     	Block b = event.getClickedBlock();
     	if (b == null) return;
     	if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -968,6 +996,15 @@ public class CreativeControl extends JavaPlugin implements Listener {
 	    }
 	    return output.toString();
 	}
+
+    private void verify_gamemode(Player p, World w, Cancellable e) {
+        if (is_creative.get(w) != (p.getGameMode() == GameMode.CREATIVE)) {
+    		getLogger().warning("OOPS! Player "+p.getName()+" had incorrect game mode in "+e);
+    		update_gamemode(p, w);
+    		return;
+        }
+    }
+    
 }
 
 
