@@ -886,7 +886,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
 		String[] pairs = string.split(" ");
 		for (String pair : pairs) {
 			String[] key_value = pair.split("=>");
-    		getLogger().info("    key='"+key_value[0]+"' value='"+key_value[1]+"'");
+    		//getLogger().info("    key='"+key_value[0]+"' value='"+key_value[1]+"'");
 			if (key_value[0].equalsIgnoreCase("type")) map.put("type", key_value[1]);
 			//if (key_value[0].equalsIgnoreCase("data")) map.put("data", Byte.parseByte(key_value[1]));
 			if (key_value[0].equalsIgnoreCase("durability")) map.put("durability", Short.parseShort(key_value[1]));
@@ -902,7 +902,9 @@ public class CreativeControl extends JavaPlugin implements Listener {
 		stack.setDurability((Short) map.get("durability"));
     	if (StackName != null) {
     		try {
-    			stack.getItemMeta().setDisplayName(StackName);
+    			ItemMeta meta = stack.getItemMeta();
+    			meta.setDisplayName(StackName);
+    			stack.setItemMeta(meta);
 	    		getLogger().info("Applied name "+StackName+" to "+stack.getType().name());
     		}
 	    	catch (Exception e) {
@@ -930,13 +932,16 @@ public class CreativeControl extends JavaPlugin implements Listener {
 			}
 		}
 		// Add lore strings
-		for (String lore : lorestrings) {
+		if (lorestrings.isEmpty() == false) {
 			try {
-				stack.getItemMeta().getLore().add(lore);
-        		getLogger().warning("Applied lore "+lore+" to "+stack.getType().name());
+    			ItemMeta meta = stack.getItemMeta();
+    			meta.setLore(lorestrings);
+    			stack.setItemMeta(meta);
+    			
+        		getLogger().warning("Applied lore to "+stack.getType().name());
 			}
 	    	catch (Exception e) {
-	    		getLogger().warning("Could not apply lore "+lore+" to "+stack.getType().name());
+	    		getLogger().warning("Could not apply lore to "+stack.getType().name());
 	    		e.printStackTrace();
 	    	}
 		}
