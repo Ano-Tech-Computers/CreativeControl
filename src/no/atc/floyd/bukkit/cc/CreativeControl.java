@@ -872,6 +872,14 @@ public class CreativeControl extends JavaPlugin implements Listener {
 	    		e.printStackTrace();
 	    	}
     	}
+    	if (stack.getItemMeta() != null && stack.getItemMeta().hasEnchants()) {
+    		ItemMeta meta = stack.getItemMeta();
+    		for (Enchantment enchantment : meta.getEnchants().keySet()) {
+    			Integer level = meta.getEnchants().get(enchantment);
+        		str = str.concat(" enchantmentmeta=>"+enchantment.getName()+":"+level);
+    		}
+    	
+    	}
 		getLogger().fine("Serialized stack "+stack+" as: "+str);
     	return str;
     }
