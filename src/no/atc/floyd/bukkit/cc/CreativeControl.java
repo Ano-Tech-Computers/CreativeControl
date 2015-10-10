@@ -882,9 +882,11 @@ public class CreativeControl extends JavaPlugin implements Listener {
 		List<String> lorestrings = new ArrayList<String>();
 		
 		// Recreate basic ItemStack
+		getLogger().info("  decoding '"+string+"'");
 		String[] pairs = string.split(" ");
 		for (String pair : pairs) {
 			String[] key_value = pair.split("=>");
+    		getLogger().info("    key='"+key_value[0]+"' value='"+key_value[1]+"'");
 			if (key_value[0].equalsIgnoreCase("type")) map.put("type", key_value[1]);
 			//if (key_value[0].equalsIgnoreCase("data")) map.put("data", Byte.parseByte(key_value[1]));
 			if (key_value[0].equalsIgnoreCase("durability")) map.put("durability", Short.parseShort(key_value[1]));
