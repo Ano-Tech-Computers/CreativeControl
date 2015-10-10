@@ -1,6 +1,6 @@
 name: CreativeControl
 main: no.atc.floyd.bukkit.cc.CreativeControl
-version: 1.50
+version: 1.51
 website: http://minecraft.atc.no/plugins
 author: FloydATC
 depend: [TelePlugin]

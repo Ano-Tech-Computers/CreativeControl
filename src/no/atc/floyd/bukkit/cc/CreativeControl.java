@@ -22,6 +22,7 @@ import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -348,6 +349,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onInventoryOpenEvent( InventoryOpenEvent event ) {
+    	if (event.getPlayer() instanceof Player == false) { return; } 
     	Player p = (Player) event.getPlayer();
     	Location loc = p.getLocation();
     	World w = loc.getWorld();
@@ -357,7 +359,8 @@ public class CreativeControl extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerMoveEvent( PlayerMoveEvent event ) {
-    	Player p = (Player) event.getPlayer();
+    	if (event.getPlayer() instanceof Player == false) { return; } 
+    	Player p = event.getPlayer();
     	Location loc = p.getLocation();
     	World w = loc.getWorld();
     	// Sanity check -- does the player gamemode match the world gamemode?
@@ -389,7 +392,14 @@ public class CreativeControl extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR) // Must process after TelePlugin
     public void onTeleport( PlayerTeleportEvent event ) {
-    	if (event.isCancelled()) return ;
+    	if (event.isCancelled()) {
+            Player p = event.getPlayer();
+        	Location loc = p.getLocation();
+        	World w = loc.getWorld();
+        	// Sanity check -- does the player gamemode match the world gamemode?
+        	verify_gamemode(p, w, event);
+    		return ;
+    	}
         Player player = event.getPlayer();
     	String from_world = event.getFrom().getWorld().getName().toLowerCase();
     	World w = event.getTo().getWorld();
@@ -424,6 +434,10 @@ public class CreativeControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerExpChange(PlayerExpChangeEvent event) {
     	Player p = event.getPlayer();
+    	Location loc = p.getLocation();
+    	World w = loc.getWorld();
+    	// Sanity check -- does the player gamemode match the world gamemode?
+    	verify_gamemode(p, w, event);
     	
     	if (p.getGameMode() != GameMode.CREATIVE) return;
     	event.setAmount(0);
@@ -478,7 +492,10 @@ public class CreativeControl extends JavaPlugin implements Listener {
     	Player p = event.getPlayer();
     	Location loc = p.getLocation();
     	World w = loc.getWorld();
-		if (is_creative.get(w)) {
+    	// Sanity check -- does the player gamemode match the world gamemode?
+    	verify_gamemode(p, w, event);
+
+    	if (is_creative.get(w)) {
 		    getLogger().info("Player "+p.getName()+" tried to throw "+event.getEgg().toString()+" in CREATIVE world '"+w.getName()+"'");
 		    event.setHatching(false);
 		}
@@ -509,6 +526,11 @@ public class CreativeControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerInteractEntity( PlayerInteractEntityEvent event	) {
     	Player p = event.getPlayer();
+    	Location loc = p.getLocation();
+    	World w = loc.getWorld();
+    	// Sanity check -- does the player gamemode match the world gamemode?
+    	verify_gamemode(p, w, event);
+
     	if (p.getGameMode() != GameMode.CREATIVE) return;
     	Entity entity = event.getRightClicked();
     	if (entity instanceof Horse) {
@@ -555,6 +577,11 @@ public class CreativeControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerItemConsume( PlayerItemConsumeEvent event	) {
     	Player p = event.getPlayer();
+    	Location loc = p.getLocation();
+    	World w = loc.getWorld();
+    	// Sanity check -- does the player gamemode match the world gamemode?
+    	verify_gamemode(p, w, event);
+
     	if (p.getGameMode() == GameMode.CREATIVE) {
     		getLogger().warning(p.getName()+" tried to consume "+event.getItem().getType().name()+" in CREATIVE mode");
     		respond(p, MSG_PREFIX+COLOR_WARNING+"Not permitted in CREATIVE mode");
@@ -566,6 +593,11 @@ public class CreativeControl extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerDropItem( PlayerDropItemEvent event	) {
     	Player p = event.getPlayer();
+    	Location loc = p.getLocation();
+    	World w = loc.getWorld();
+    	// Sanity check -- does the player gamemode match the world gamemode?
+    	verify_gamemode(p, w, event);
+
     	if (p.getGameMode() == GameMode.CREATIVE) {
     		getLogger().warning(p.getName()+" tried to throw "+event.getItemDrop().getItemStack().getType()+" in CREATIVE mode");
     		respond(p, MSG_PREFIX+COLOR_WARNING+"Not permitted in CREATIVE mode");
@@ -1001,7 +1033,8 @@ public class CreativeControl extends JavaPlugin implements Listener {
 	    return output.toString();
 	}
 
-    private void verify_gamemode(Player p, World w, Cancellable e) {
+    private void verify_gamemode(Player p, World w, Event e) {
+    	// if (p.hasPermission("creativecontrol.gm")) { return; } // Mismatch allowed
         if (is_creative.get(w) != (p.getGameMode() == GameMode.CREATIVE)) {
     		getLogger().warning("OOPS! Player "+p.getName()+" had incorrect game mode in "+e);
     		update_gamemode(p, w);
