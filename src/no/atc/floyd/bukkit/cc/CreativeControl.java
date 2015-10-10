@@ -61,7 +61,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -859,6 +861,17 @@ public class CreativeControl extends JavaPlugin implements Listener {
 	    		e.printStackTrace();
 	    	}
     	}
+    	if (stack.getItemMeta() != null && stack.getItemMeta().hasLore()) {
+    		try {
+    			for (String lore : stack.getItemMeta().getLore()) {
+    	    	    str = str.concat(" lore=>"+ascii2hex(lore));
+    			}
+    		}
+	    	catch (Exception e) {
+	    		getLogger().warning("Could serialize lore of "+stack.getType().name());
+	    		e.printStackTrace();
+	    	}
+    	}
 		getLogger().fine("Serialized stack "+stack+" as: "+str);
     	return str;
     }
@@ -866,6 +879,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
     private ItemStack string_to_itemstack(String string) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		String StackName = null;
+		List<String> lorestrings = new ArrayList<String>();
 		
 		// Recreate basic ItemStack
 		String[] pairs = string.split(" ");
@@ -876,6 +890,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
 			if (key_value[0].equalsIgnoreCase("durability")) map.put("durability", Short.parseShort(key_value[1]));
 			if (key_value[0].equalsIgnoreCase("amount")) map.put("amount", Integer.parseInt(key_value[1]));
 			if (key_value[0].equalsIgnoreCase("name")) StackName = new String(hex2ascii(key_value[1]));
+			if (key_value[0].equalsIgnoreCase("lore")) lorestrings.add(new String(hex2ascii(key_value[1])));
 		}
 
 		getLogger().fine("Recreate stack using map: "+map);
@@ -886,6 +901,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
     	if (StackName != null) {
     		try {
     			stack.getItemMeta().setDisplayName(StackName);
+	    		getLogger().info("Applied name "+StackName+" to "+stack.getType().name());
     		}
 	    	catch (Exception e) {
 	    		getLogger().warning("Could not apply name "+StackName+" to "+stack.getType().name());
@@ -903,12 +919,24 @@ public class CreativeControl extends JavaPlugin implements Listener {
 				getLogger().fine("Recreate enchantment type "+type_level[0]+" level "+level);
 				try {
 					stack.addEnchantment(ench, level);
+		    		getLogger().info("Applied enchantment "+ench.getName()+" level "+level+" to "+stack.getType().name());
 				}
 		    	catch (Exception e) {
 		    		getLogger().warning("Could not apply enchantment "+ench.getName()+" level "+level+" to "+stack.getType().name());
 		    		e.printStackTrace();
 		    	}
 			}
+		}
+		// Add lore strings
+		for (String lore : lorestrings) {
+			try {
+				stack.getItemMeta().getLore().add(lore);
+        		getLogger().warning("Applied lore "+lore+" to "+stack.getType().name());
+			}
+	    	catch (Exception e) {
+	    		getLogger().warning("Could not apply lore "+lore+" to "+stack.getType().name());
+	    		e.printStackTrace();
+	    	}
 		}
     	
     	return stack;
