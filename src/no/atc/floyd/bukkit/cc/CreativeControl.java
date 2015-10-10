@@ -1039,7 +1039,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
 	}
 
     private void verify_gamemode(Player p, World w, Event e) {
-    	// if (p.hasPermission("creativecontrol.gm")) { return; } // Mismatch allowed
+    	if (p.hasPermission("creativecontrol.gm")) { return; } // Mismatch allowed
         if (is_creative.get(w) != (p.getGameMode() == GameMode.CREATIVE)) {
     		getLogger().warning("OOPS! Player "+p.getName()+" had incorrect game mode in "+e);
     		update_gamemode(p, w);
