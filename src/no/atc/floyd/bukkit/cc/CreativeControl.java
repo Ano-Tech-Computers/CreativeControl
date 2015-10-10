@@ -317,6 +317,9 @@ public class CreativeControl extends JavaPlugin implements Listener {
         return false;
     }
     
+    // So tired of looking for this:
+    // http://jd.bukkit.org/org/bukkit/event/player/PlayerEvent.html
+    
     @EventHandler
     public void onPlayerChangedWorldEvent( PlayerChangedWorldEvent event ) {
     	Player p = event.getPlayer();
@@ -345,26 +348,6 @@ public class CreativeControl extends JavaPlugin implements Listener {
         }
         //update_gamemode(player, player.getWorld());
     	return true;
-    }
-
-    @EventHandler
-    public void onInventoryOpenEvent( InventoryOpenEvent event ) {
-    	if (event.getPlayer() instanceof Player == false) { return; } 
-    	Player p = (Player) event.getPlayer();
-    	Location loc = p.getLocation();
-    	World w = loc.getWorld();
-    	// Sanity check -- does the player gamemode match the world gamemode?
-    	verify_gamemode(p, w, event);
-    }
-
-    @EventHandler
-    public void onPlayerMoveEvent( PlayerMoveEvent event ) {
-    	if (event.getPlayer() instanceof Player == false) { return; } 
-    	Player p = event.getPlayer();
-    	Location loc = p.getLocation();
-    	World w = loc.getWorld();
-    	// Sanity check -- does the player gamemode match the world gamemode?
-    	verify_gamemode(p, w, event);
     }
 
     @EventHandler
@@ -410,6 +393,28 @@ public class CreativeControl extends JavaPlugin implements Listener {
             update_gamemode(player, w);
     	}
     }    
+    
+    
+    @EventHandler
+    public void onInventoryOpenEvent( InventoryOpenEvent event ) {
+    	if (event.getPlayer() instanceof Player == false) { return; } 
+    	Player p = (Player) event.getPlayer();
+    	Location loc = p.getLocation();
+    	World w = loc.getWorld();
+    	// Sanity check -- does the player gamemode match the world gamemode?
+    	verify_gamemode(p, w, event);
+    }
+
+    @EventHandler
+    public void onPlayerMoveEvent( PlayerMoveEvent event ) {
+    	if (event.getPlayer() instanceof Player == false) { return; } 
+    	Player p = event.getPlayer();
+    	Location loc = p.getLocation();
+    	World w = loc.getWorld();
+    	// Sanity check -- does the player gamemode match the world gamemode?
+    	verify_gamemode(p, w, event);
+    }
+
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
