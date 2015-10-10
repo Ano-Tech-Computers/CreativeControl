@@ -857,7 +857,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
     	    	str = str.concat(" name=>"+ascii2hex(stack.getItemMeta().getDisplayName()));
     		}
 	    	catch (Exception e) {
-	    		getLogger().warning("Could serialize name of "+stack.getType().name());
+	    		getLogger().warning("Could not serialize name of "+stack.getType().name());
 	    		e.printStackTrace();
 	    	}
     	}
@@ -868,17 +868,9 @@ public class CreativeControl extends JavaPlugin implements Listener {
     			}
     		}
 	    	catch (Exception e) {
-	    		getLogger().warning("Could serialize lore of "+stack.getType().name());
+	    		getLogger().warning("Could not serialize lore of "+stack.getType().name());
 	    		e.printStackTrace();
 	    	}
-    	}
-    	if (stack.getItemMeta() != null && stack.getItemMeta().hasEnchants()) {
-    		ItemMeta meta = stack.getItemMeta();
-    		for (Enchantment enchantment : meta.getEnchants().keySet()) {
-    			Integer level = meta.getEnchants().get(enchantment);
-        		str = str.concat(" enchantmentmeta=>"+enchantment.getName()+":"+level);
-    		}
-    	
     	}
 		getLogger().fine("Serialized stack "+stack+" as: "+str);
     	return str;
@@ -890,7 +882,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
 		List<String> lorestrings = new ArrayList<String>();
 		
 		// Recreate basic ItemStack
-		getLogger().info("  decoding '"+string+"'");
+		//getLogger().info("  decoding '"+string+"'");
 		String[] pairs = string.split(" ");
 		for (String pair : pairs) {
 			String[] key_value = pair.split("=>");
@@ -913,7 +905,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
     			ItemMeta meta = stack.getItemMeta();
     			meta.setDisplayName(StackName);
     			stack.setItemMeta(meta);
-	    		getLogger().info("Applied name "+StackName+" to "+stack.getType().name());
+	    		//getLogger().info("Applied name "+StackName+" to "+stack.getType().name());
     		}
 	    	catch (Exception e) {
 	    		getLogger().warning("Could not apply name "+StackName+" to "+stack.getType().name());
@@ -931,7 +923,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
 				getLogger().fine("Recreate enchantment type "+type_level[0]+" level "+level);
 				try {
 					stack.addEnchantment(ench, level);
-		    		getLogger().info("Applied enchantment "+ench.getName()+" level "+level+" to "+stack.getType().name());
+		    		//getLogger().info("Applied enchantment "+ench.getName()+" level "+level+" to "+stack.getType().name());
 				}
 		    	catch (Exception e) {
 		    		getLogger().warning("Could not apply enchantment "+ench.getName()+" level "+level+" to "+stack.getType().name());
@@ -945,8 +937,7 @@ public class CreativeControl extends JavaPlugin implements Listener {
     			ItemMeta meta = stack.getItemMeta();
     			meta.setLore(lorestrings);
     			stack.setItemMeta(meta);
-    			
-        		getLogger().warning("Applied lore to "+stack.getType().name());
+    			getLogger().warning("Applied lore to "+stack.getType().name());
 			}
 	    	catch (Exception e) {
 	    		getLogger().warning("Could not apply lore to "+stack.getType().name());
